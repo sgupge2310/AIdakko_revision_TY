@@ -1,10 +1,10 @@
 import 'dart:io';
 
+// import 'package:quiver/async.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gazou/inget.dart';
 import 'package:gazou/manual.dart';
-import 'package:quiver/async.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/improve.dart';
@@ -134,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
     List<double> size = deviceSizeHelper.getDeviceSize();
     double deviceWidth = size[0];
     double deviceHeight = size[1];
+
 
     print(deviceHeight);
     print(deviceWidth);

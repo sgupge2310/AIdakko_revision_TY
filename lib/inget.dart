@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,26 @@ import 'package:quiver/async.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/pause.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+
+
+// 写真に紐づけるID(6桁)をランダム生成
+
+//final id = Random().nextInt(900000) + 100000;
+
+// 現在の日付を取得
+//DateTime now = DateTime.now();
+
+// 年、月、日を取得
+//String year = now.year.toString();
+//String month = now.month.toString();
+//String day = now.day.toString();
+//String hour = now.hour.toString();
+//String minute = now.minute.toString();
+//String second = now.second.toString();
+//String today = year +"_"+ month + "_" + day + "_" + hour + minute + second;
+
+// ID作成
+//final id = today;
 
 //get0
 /// 写真撮影画面
@@ -69,10 +90,26 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   var main_text_colors = Colors.white;
   var sub_text_colors = Colors.white;
   var icon_colors = Colors.black;
+  // ID定義（全ウィジェットで共有するため static を使用）
+  static String? id;
 
   @override
   void initState() {
     super.initState();
+
+    // アプリを終了せずに，再度撮影を行なうときはIDを初期化
+    id = null;
+    // 時間情報の取得とIDの作成
+    if (id == null) {
+      DateTime now = DateTime.now();
+      String year = now.year.toString();
+      String month = now.month.toString().padLeft(2, '0');
+      String day = now.day.toString().padLeft(2, '0');
+      String hour = now.hour.toString().padLeft(2, '0');
+      String minute = now.minute.toString().padLeft(2, '0');
+      String second = now.second.toString().padLeft(2, '0');
+      id = year + "_" + month + "_" + day + "_" + hour + minute + second;
+    }
 
     _controller = CameraController(
       // カメラを指定
@@ -92,15 +129,13 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     super.dispose();
   }
 
-
-
-
   Widget build(BuildContext context) {
     if (count == 0) {
       _audio.play('zensin.mp3');
       startTimer();
       count++;
     }
+
     return Scaffold(
       appBar:  AppBar(centerTitle: true,title:  Text('正面を向いてください',style:TextStyle(color: appbar_text_colors)),
       actions:[IconButton(onPressed: (){Navigator.popUntil(context, (Route<dynamic> route) => route.isFirst);}, icon:Icon(Icons.home,color: icon_colors,))],
@@ -164,10 +199,13 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       ),
     );
   }
-//画像をローカルに保存
+
+  //画像をローカルに保存
 Future<void> _saveImageToGallery(String imagePath) async {
-  // 保存したい画像ファイルのパスを指定
-  final result = await ImageGallerySaver.saveFile(imagePath);
+  // 画像を保存するファイル名を指定
+  final fileName = "${id}-front.jpg";
+  // 保存したい画像ファイルのパスとファイル名を指定して保存
+  final result = await ImageGallerySaver.saveFile(imagePath, name: fileName);
 
   if (result != null) {
     print('画像がギャラリーアルバムに保存されました: $result');
@@ -178,7 +216,7 @@ Future<void> _saveImageToGallery(String imagePath) async {
 }
 
 //get1
-/// 写真撮影画面
+/// 写真撮影画面（正面）
 class TakePictureScreen1 extends StatefulWidget {
   const TakePictureScreen1({
     Key? key,
@@ -267,6 +305,7 @@ class TakePictureScreen1State extends State<TakePictureScreen1> {
       startTimer();
       count++;
     }
+
     return Scaffold(
       appBar:  AppBar(centerTitle: true,title:  Text('正面を向いてください',style:TextStyle(color: appbar_text_colors)),
       actions:[IconButton(onPressed: (){Navigator.popUntil(context, (Route<dynamic> route) => route.isFirst);}, icon:Icon(Icons.home,color: icon_colors,))],
@@ -331,10 +370,12 @@ class TakePictureScreen1State extends State<TakePictureScreen1> {
       
     );
   }
-//画像をローカルに保存
+  //画像をローカルに保存
 Future<void> _saveImageToGallery(String imagePath) async {
-  // 保存したい画像ファイルのパスを指定
-  final result = await ImageGallerySaver.saveFile(imagePath);
+  // 画像を保存するファイル名を指定
+  final fileName = "${TakePictureScreenState.id}-front.jpg";
+  // 保存したい画像ファイルのパスとファイル名を指定して保存
+  final result = await ImageGallerySaver.saveFile(imagePath, name: fileName);
 
   if (result != null) {
     print('画像がギャラリーアルバムに保存されました: $result');
@@ -344,7 +385,7 @@ Future<void> _saveImageToGallery(String imagePath) async {
 }
 }
 
-/// 写真撮影画面
+/// 写真撮影画面（正面-やり直し）
 class TakePictureScreen1p1 extends StatefulWidget {
   const TakePictureScreen1p1({
     Key? key,
@@ -375,6 +416,7 @@ class TakePictureScreen1p1State extends State<TakePictureScreen1p1> {
   var main_text_colors = Colors.white;
   var sub_text_colors = Colors.white;
   var icon_colors = Colors.black;
+
 
   // ③ カウントダウン処理を行う関数を定義
   Future <void> startTimer() async{
@@ -501,8 +543,10 @@ class TakePictureScreen1p1State extends State<TakePictureScreen1p1> {
   }
 //画像をローカルに保存
 Future<void> _saveImageToGallery(String imagePath) async {
-  // 保存したい画像ファイルのパスを指定
-  final result = await ImageGallerySaver.saveFile(imagePath);
+  // 画像を保存するファイル名を指定
+  final fileName = "${TakePictureScreenState.id}-front.jpg";
+  // 保存したい画像ファイルのパスとファイル名を指定して保存
+  final result = await ImageGallerySaver.saveFile(imagePath, name: fileName);
 
   if (result != null) {
     print('画像がギャラリーアルバムに保存されました: $result');
@@ -513,7 +557,7 @@ Future<void> _saveImageToGallery(String imagePath) async {
 }
 
 //get2
-/// 写真撮影画面
+/// 写真撮影画面（左側）
 class TakePictureScreen2 extends StatefulWidget {
   const TakePictureScreen2({
     Key? key,
@@ -601,7 +645,6 @@ class TakePictureScreen2State extends State<TakePictureScreen2> {
 
 
 
-
   Widget build(BuildContext context) {
     if (count == 0) {
       _audio.play('hidari.mp3');
@@ -674,8 +717,10 @@ class TakePictureScreen2State extends State<TakePictureScreen2> {
   }
 //画像をローカルに保存
 Future<void> _saveImageToGallery(String imagePath) async {
-  // 保存したい画像ファイルのパスを指定
-  final result = await ImageGallerySaver.saveFile(imagePath);
+  // 画像を保存するファイル名を指定
+  final fileName = "${TakePictureScreenState.id}-right.jpg";
+  // 保存したい画像ファイルのパスとファイル名を指定して保存
+  final result = await ImageGallerySaver.saveFile(imagePath, name: fileName);
 
   if (result != null) {
     print('画像がギャラリーアルバムに保存されました: $result');
@@ -685,6 +730,7 @@ Future<void> _saveImageToGallery(String imagePath) async {
 }
 }
 
+/// 写真撮影画面（左側-やり直し）
 class TakePictureScreen2p2 extends StatefulWidget {
   const TakePictureScreen2p2({
     Key? key,
@@ -844,8 +890,10 @@ class TakePictureScreen2p2State extends State<TakePictureScreen2p2> {
   }
 //画像をローカルに保存
 Future<void> _saveImageToGallery(String imagePath) async {
-  // 保存したい画像ファイルのパスを指定
-  final result = await ImageGallerySaver.saveFile(imagePath);
+  // 画像を保存するファイル名を指定
+  final fileName = "${TakePictureScreenState.id}-right.jpg";
+  // 保存したい画像ファイルのパスとファイル名を指定して保存
+  final result = await ImageGallerySaver.saveFile(imagePath, name: fileName);
 
   if (result != null) {
     print('画像がギャラリーアルバムに保存されました: $result');
@@ -856,7 +904,7 @@ Future<void> _saveImageToGallery(String imagePath) async {
 }
 
 //get3
-/// 写真撮影画面
+/// 写真撮影画面（右側）
 class TakePictureScreen3 extends StatefulWidget {
   const TakePictureScreen3({
     Key? key,
@@ -1021,8 +1069,10 @@ class TakePictureScreen3State extends State<TakePictureScreen3> {
   }
 //画像をローカルに保存
 Future<void> _saveImageToGallery(String imagePath) async {
-  // 保存したい画像ファイルのパスを指定
-  final result = await ImageGallerySaver.saveFile(imagePath);
+  // 画像を保存するファイル名を指定
+  final fileName = "${TakePictureScreenState.id}-left.jpg";
+  // 保存したい画像ファイルのパスとファイル名を指定して保存
+  final result = await ImageGallerySaver.saveFile(imagePath, name: fileName);
 
   if (result != null) {
     print('画像がギャラリーアルバムに保存されました: $result');
@@ -1032,6 +1082,7 @@ Future<void> _saveImageToGallery(String imagePath) async {
 }
 }
 
+/// 写真撮影画面（右側-やり直し）
 class TakePictureScreen3p3 extends StatefulWidget {
   const TakePictureScreen3p3({
     Key? key,
@@ -1177,6 +1228,7 @@ class TakePictureScreen3p3State extends State<TakePictureScreen3p3> {
                     dispose();
                     Navigator.push(
                     context,
+
                     MaterialPageRoute(builder: (context) => Pause3Page(title:"中断中",camera:widget.camera,path1:widget.path1,path2:widget.path2,offsets1: widget.offsets1,offsets2: widget.offsets2,),
               )
                     );
@@ -1195,10 +1247,13 @@ class TakePictureScreen3p3State extends State<TakePictureScreen3p3> {
       
     );
   }
+
 //画像をローカルに保存
 Future<void> _saveImageToGallery(String imagePath) async {
-  // 保存したい画像ファイルのパスを指定
-  final result = await ImageGallerySaver.saveFile(imagePath);
+  // 画像を保存するファイル名を指定
+  final fileName = "${TakePictureScreenState.id}-left.jpg";
+  // 保存したい画像ファイルのパスとファイル名を指定して保存
+  final result = await ImageGallerySaver.saveFile(imagePath, name: fileName);
 
   if (result != null) {
     print('画像がギャラリーアルバムに保存されました: $result');
@@ -1207,3 +1262,4 @@ Future<void> _saveImageToGallery(String imagePath) async {
   }
 }
 }
+

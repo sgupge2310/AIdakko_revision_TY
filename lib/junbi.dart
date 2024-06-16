@@ -4,6 +4,7 @@ import 'package:gazou/inget.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/outget.dart';
 
+// inget に進む class
 class JunbiINPage extends StatefulWidget {
   const JunbiINPage({Key? key, required this.camera,required this.title}) : super(key: key);
 
@@ -83,6 +84,7 @@ class _JunbiINPageState extends State<JunbiINPage> {
   }
 }
 
+// outget に進む class
 class JunbiOUTPage extends StatefulWidget {
   const JunbiOUTPage({Key? key, required this.camera,required this.title}) : super(key: key);
 

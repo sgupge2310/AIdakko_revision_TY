@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:screenshot/screenshot.dart';
 import 'package:gazou/hand20.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:typed_data';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -13,6 +15,10 @@ import 'dart:convert';
 import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:audioplayers/audioplayers.dart';
+// idの共有のため（結果画像 id-result.jpg を作る際に必要）
+import 'inget.dart';
+import 'outget.dart';
 
 //評価結果を返す
 class Evaluation extends StatefulWidget {
@@ -24,13 +30,16 @@ class Evaluation extends StatefulWidget {
   final List<Offset> offsets1;
   final List<Offset> offsets2;
   final List<Offset> offsets3;
+  // final _audio = AudioCache();
   String inoutcamera;
 
-  @override
+ @override
   State<Evaluation> createState() => _EvaluationState();
 }
-//firebase
+
+//firebase (現在はほぼ使用していない)
 Future<void> uploadImage(String front,String left,String right,List<Offset> frontoffset,List<Offset> leftoffset,List<Offset> rightoffset) async {
+
   // 現在の日付を取得
     DateTime now = DateTime.now();
 
@@ -40,8 +49,13 @@ Future<void> uploadImage(String front,String left,String right,List<Offset> fron
     String day = now.day.toString();
     String today = year + month + day;
 
-    var id = DateTime.now().millisecondsSinceEpoch;
-  try {
+    // id設定
+    // var id = DateTime.now().millisecondsSinceEpoch;
+    var truncatedId = DateTime.now().millisecondsSinceEpoch;
+    var id = truncatedId.toInt();
+
+
+    try {
     File file = File(front);
 
     Reference storageReference = FirebaseStorage.instance.ref().child('dakko/$today/$id/image/$id-front.jpg');
@@ -144,6 +158,8 @@ Future<void> uploadImage(String front,String left,String right,List<Offset> fron
   print('エラー: $e');
 }
 }
+// ここまで firebase のコード
+
 //5項目の計算用関数
 class _EvaluationState extends State<Evaluation> {
   String kendall = "評価結果を出す";
@@ -800,6 +816,7 @@ class _EvaluationState extends State<Evaluation> {
     String advice = "";
     int advicecount = 0;
 
+
     List<String> advice_kendall_list
     = ["",
       "全ポイントで外れています。下腹をへこませ、耳たぶ,肩峰,股関節,膝,外くるぶしの5点が一直線に並ぶように抱っこしましょう。",
@@ -1039,7 +1056,8 @@ class _EvaluationState extends State<Evaluation> {
             Visibility(child: Text(text,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.orange)),visible: texttf,),
             Visibility(child: Text(kendall_text),visible: tf ),
 
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
+            ListView(//crossAxisAlignment: CrossAxisAlignment.start,
+              children:[
             //BadPont
             Visibility(child: Text("横から見た姿勢："),visible: badtf),
             Visibility(child: Text(badtxt[0],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.orange)),visible: badtf),
@@ -1116,6 +1134,7 @@ Future<void> widgetToImage(wti) async {
 
 //Widget build
   @override
+
   Widget build(BuildContext context) {
     //初期状態
     if(count==0){
@@ -1133,9 +1152,9 @@ Future<void> widgetToImage(wti) async {
       kendall_text = "姿勢パターン:";
       advicetxt = _advice();
       badtxt = _badpoint();
-      
     }
-    
+
+    var _audio = AudioPlayer();
     return Scaffold(
       appBar:PreferredSize(
         preferredSize: Size.fromHeight(_devicesizeget()[1]/12), // AppBarの高さを変更
@@ -1208,9 +1227,9 @@ Future<void> widgetToImage(wti) async {
       ),
       body:Stack(
           children: <Widget>[
-            Column(
+            ListView(
               ),
-            Column(children:[ 
+            ListView(children:[
             Row(
               children: <Widget>[
               RepaintBoundary(
@@ -1223,7 +1242,6 @@ Future<void> widgetToImage(wti) async {
                   onTap: () {
                     widgetToImage(globalKeyfront);
                   },
-
                   child:Stack(
                     children: [
                       Transform.scale(
@@ -1239,7 +1257,7 @@ Future<void> widgetToImage(wti) async {
                   child: Center(),
               ),
                     ],
-                  ), 
+                  ),
                 ),
                 ),
               ),
@@ -1270,7 +1288,7 @@ Future<void> widgetToImage(wti) async {
               ),
               ),
                     ],
-                  ), 
+                  ),
                   ),
                 ),
               ),
@@ -1417,7 +1435,8 @@ Future<void> widgetToImage(wti) async {
         child: Container(
             width: _devicesizeget()[0],
             height: _devicesizeget()[1]/12*5.6,
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+            // 表示エラーの都合上「Column」から「ListView」に変更
+            child: ListView(//crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 //アドバイス
                 Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("脊柱：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black))),visible: advicetf),
@@ -1545,7 +1564,7 @@ Future<void> widgetToImage(wti) async {
                         backgroundColor: downcolor_1.withOpacity(0.6),//ボタン背景色
                         elevation: 16,
                       ),
-                      child: Text("抱っこスコア",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 22,color: main_text_colors)),
+                      child: Text("抱っこスコア",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20,color: main_text_colors)),
                     ),
                  ),
                     ),
@@ -2358,6 +2377,7 @@ class ImagePainter extends CustomPainter{
     return true;
   }
 }
+
 //トリミングのための関数(未使用)
 class MyClipper extends CustomClipper<Rect> {
   List<Offset> offsets;
@@ -2379,6 +2399,7 @@ class MyClipper extends CustomClipper<Rect> {
         return false; // トリミングは常に同じであるため、再クリップを行わない
     }
 }
+
 //5角形チャートを描画するための関数
 class SquarePainter extends CustomPainter {
   String dir;
@@ -2408,6 +2429,7 @@ class SquarePainter extends CustomPainter {
     return false;
   }
 }
+
 //描画用:〇，△，□の描画を行う関数
   String _symbol(int value){
     if (value > 18){

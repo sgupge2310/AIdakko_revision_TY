@@ -518,8 +518,10 @@ class _BlazePage3State extends State<BlazePage3> {
   }
 
   Future<void> seigyo() async {
-    //姿勢がきちんと取れているとき次の撮影へ
+    //姿勢がきちんと取れているとき結果画面へ
     if (hantei && hantei2 == true) {
+      // 終了を知らせる音声を流す
+      _audio.play('end.mp3');
       await Navigator.push(
           context,
           MaterialPageRoute(
@@ -529,7 +531,6 @@ class _BlazePage3State extends State<BlazePage3> {
             builder: (context) => Evaluation(path1: widget.path1,path2: widget.path2,path3:widget.imagePath,offsets1:widget.offsets1,offsets2:widget.offsets2,offsets3:offsets,inoutcamera:"in"),
           ));
     } else {
-
       //問題があるとき再撮影へ
       _audio.play('keihou.mp3');
       await Future.delayed(Duration(seconds: 4));

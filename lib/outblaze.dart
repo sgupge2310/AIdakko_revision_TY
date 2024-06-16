@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gazou/inget.dart';
-import 'package:quiver/async.dart';
+// import 'package:quiver/async.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
@@ -506,8 +506,10 @@ class _OutBlazePage3State extends State<OutBlazePage3> {
   }
 
   Future<void> seigyo() async {
-    //姿勢がきちんと取れているとき次の撮影へ
+    //姿勢がきちんと取れているとき結果画面へ
     if (hantei && hantei2 == true) {
+      // 終了を知らせる音声を流す
+      _audio.play('end.mp3');
       await Navigator.push(
           context,
           MaterialPageRoute(
