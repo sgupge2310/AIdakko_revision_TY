@@ -1,31 +1,30 @@
 import 'dart:io';
-
-// import 'package:quiver/async.dart';
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
 import 'package:gazou/inget.dart';
-import 'package:gazou/manual.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/improve.dart';
 import 'package:gazou/test.dart';
 import 'package:gazou/hand20.dart';
 import 'package:gazou/developer.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';//日本語フォントに変更するため
 import 'package:http/http.dart' as http;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:typed_data';
-import 'package:flutter/services.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:image/image.dart' as img;
 import 'dart:convert';
 import 'package:gazou/datacollection.dart';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'firebase_options.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:quiver/async.dart';
+import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
+import 'package:gazou/manual.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';//日本語フォントに変更するため
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
+import 'package:image/image.dart' as img;
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 
 //こんにちは
 Future<void> main() async {
@@ -103,12 +102,11 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.camera,required this.title}) : super(key: key);
-
   final String title;
   final CameraDescription camera;
   
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState(); // 112行目に移動
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -134,7 +132,6 @@ class _MyHomePageState extends State<MyHomePage> {
     List<double> size = deviceSizeHelper.getDeviceSize();
     double deviceWidth = size[0];
     double deviceHeight = size[1];
-
 
     print(deviceHeight);
     print(deviceWidth);
@@ -177,7 +174,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 //   ),
                 //   child: Text('アンケート入力',style: TextStyle(fontSize: 20,color: Colors.black)),
                 // ),
-                
               ],
             ),
             //隠しボタン
@@ -221,7 +217,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPressed: (){
                     //firebase
                     // uploadImage(File("assets/title.png"));
-
                   //   if (formKey.currentState!.validate()) {
                   //   // 1. IDを受け取る
                   //   String id = idController.text;
@@ -234,9 +229,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   //     saveImage(imageBytes);
                   //   }
                   // }
-
                     Navigator.push(
                     context,
+                    // manual.dartのManualPageに移動
                     MaterialPageRoute(builder: (context) => ManualPage(title:widget.title,camera:widget.camera),
               )
                     );
@@ -301,8 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
               //     ),
               //     child: Text('データ\n収集',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 35,color: main_text_colors),textAlign: TextAlign.center,),
               //   ),
-              //   ),  
-              
+              //   ),
               ],
             ),
             // Align(alignment: Alignment.topRight,
@@ -328,6 +322,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
     );
   }
+
+   // 未使用
    void _opneUrl() async {
     final url = Uri.parse('https://docs.google.com/forms/d/168uxibsGbr7ciBM2FsLRksgxEMEkJ_TzCcePeq9n82s/edit?usp=sharing'); //←ここに表示させたいURLを入力する
     if (await canLaunchUrl(url)) {
@@ -398,4 +394,3 @@ class DeviceSizeHelper {
     return devicesize;
   }
 }
-    

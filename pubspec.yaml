@@ -54,6 +54,7 @@ dev_dependencies:
   quiver: ^3.2.1
   # ↓ジャイロセンサー機能用
   sensors: ^2.0.3
+  sensors_plus: ^2.0.0
   # ↓スクリーンショット
   screenshot: ^2.5.0
   # ↓ID
@@ -151,6 +152,7 @@ flutter:
     - assets/intejun.png
     # 2024以降に追加したファイル
     - assets/end.mp3
+    - assets/prepare.mp3
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

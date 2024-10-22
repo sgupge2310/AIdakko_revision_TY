@@ -1,13 +1,13 @@
+import 'package:gazou/inget.dart';
+// import 'package:quiver/async.dart';
+import 'package:gazou/blazepaint.dart';
+import 'dart:math';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:gazou/inget.dart';
-// import 'package:quiver/async.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
-import 'dart:math';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/outget.dart';
-import 'package:gazou/blazepaint.dart';
 import 'package:gazou/evaluation.dart';
 
 //git追加テスト

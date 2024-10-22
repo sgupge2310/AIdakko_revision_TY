@@ -1,9 +1,9 @@
+import 'package:gazou/inget.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:gazou/inget.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/junbi.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:gazou/main.dart';
 
+// main.dart の235行目からここに移動
 class ManualPage extends StatefulWidget {
   const ManualPage({Key? key, required this.camera,required this.title}) : super(key: key);
 
@@ -18,7 +19,7 @@ class ManualPage extends StatefulWidget {
   final CameraDescription camera;
   
   @override
-  State<ManualPage> createState() => _ManualPageState();
+  State<ManualPage> createState() => _ManualPageState(); // 25行目に移動
 }
 
 class _ManualPageState extends State<ManualPage> {
@@ -59,7 +60,8 @@ class _ManualPageState extends State<ManualPage> {
       child:
       ElevatedButton(
         onPressed: (){
-          Navigator.push(context, 
+          Navigator.push(context,
+          // junbi.dart の JunbiINPage に移動
           MaterialPageRoute(builder: (context) => JunbiINPage(title: widget.title,camera:widget.camera),
           )
           );
@@ -75,7 +77,8 @@ class _ManualPageState extends State<ManualPage> {
       child:
       ElevatedButton(
         onPressed: (){
-          Navigator.push(context, 
+          Navigator.push(context,
+              // junbi.dart の JunbiOUTPage に移動
           MaterialPageRoute(builder: (context) => JunbiOUTPage(title: widget.title,camera:widget.camera),
           )
           );
@@ -96,6 +99,7 @@ class _ManualPageState extends State<ManualPage> {
   }
 }
 
+// 未使用
   Future<void> _InImagesave() async {
   // 1. アプリ内の画像ファイルをアセットからコピーして保存
   final appDocDir = await getApplicationDocumentsDirectory();
@@ -115,6 +119,8 @@ class _ManualPageState extends State<ManualPage> {
       print('画像の保存に失敗しました');
     }
   }
+
+  // 未使用
   Future<void> _OutImagesave() async {
   // 1. アプリ内の画像ファイルをアセットからコピーして保存
   final appDocDir = await getApplicationDocumentsDirectory();

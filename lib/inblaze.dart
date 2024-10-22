@@ -1,8 +1,8 @@
+import 'package:gazou/blazepaint.dart';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gazou/inget.dart';
-import 'package:gazou/blazepaint.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/evaluation.dart';

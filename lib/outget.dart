@@ -1,39 +1,20 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'package:gazou/main.dart';
+// import 'package:quiver/async.dart';
+import 'package:gazou/pause.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gazou/outblaze.dart';
-import 'package:gazou/main.dart';
-// import 'package:quiver/async.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:gazou/pause.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 // ↓copy_resize用
 import 'package:image/image.dart' as imgLib;
 import 'dart:typed_data';
-
-
-// 写真に紐づけるID(6桁)をランダム生成
-//final id = Random().nextInt(999) + 100;
-
-// 現在の日付を取得
-//DateTime now = DateTime.now();
-
-// 年、月、日を取得
-//String year = now.year.toString();
-//String month = now.month.toString();
-//String day = now.day.toString();
-//String hour = now.hour.toString();
-//String minute = now.minute.toString();
-//String second = now.second.toString();
-//String today = year +"_"+ month + "_" + day + "_" + hour + minute + second;
-
-// ID作成
-//final id = today;
 
 
 /// 写真撮影画面

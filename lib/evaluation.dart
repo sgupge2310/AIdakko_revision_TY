@@ -1,21 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:gazou/hand20.dart';
+import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:screenshot/screenshot.dart';
-import 'package:gazou/hand20.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'dart:typed_data';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'firebase_options.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:audioplayers/audioplayers.dart';
 // idの共有のため（結果画像 id-result.jpg を作る際に必要）
 import 'inget.dart';
 import 'outget.dart';
@@ -214,15 +213,15 @@ class _EvaluationState extends State<Evaluation> {
   List<Offset> landmarks = [];
   //正面
   if(landmarkfront.length!=9){
-    landmarks.add(landmarkfront[0]);
-    landmarks.add(landmarkfront[11]);
-    landmarks.add(landmarkfront[12]);
-    landmarks.add(landmarkfront[13]);
-    landmarks.add(landmarkfront[14]);
-    landmarks.add(landmarkfront[15]);
-    landmarks.add(landmarkfront[16]);
-    landmarks.add(landmarkfront[23]);
-    landmarks.add(landmarkfront[24]);
+    landmarks.add(landmarkfront[0]); //鼻
+    landmarks.add(landmarkfront[11]); //左肩
+    landmarks.add(landmarkfront[12]); //右肩
+    landmarks.add(landmarkfront[13]); //左ひじ
+    landmarks.add(landmarkfront[14]); //右ひじ
+    landmarks.add(landmarkfront[15]); //左手首
+    landmarks.add(landmarkfront[16]); //右手首
+    landmarks.add(landmarkfront[23]); //左腰(left_hip)
+    landmarks.add(landmarkfront[24]); //右腰(right_hip)
     //戻す
     landmarkfront = landmarks;
   }
@@ -503,6 +502,7 @@ class _EvaluationState extends State<Evaluation> {
 
     return ArmpitFit.abs();
   }
+
   //乳児の密着具合について
   double _Closeness_calculation(){
     List<Offset>landmarkfront = [];
@@ -592,11 +592,11 @@ class _EvaluationState extends State<Evaluation> {
   List<int> _score(){
     int sumscore = 0;
     List<int> scorelist = [];
-    var ShoulderScore = _ShoulderScore_calculation();
-    var kendall = _kendall_classification()[1] + _kendall_classification()[2] + _kendall_classification()[3];
-    var Hugheight = _Hugheight_calculation();
-    var ArmPitFit = _ArmpitFit_calculation();
-    var Closeness = _Closeness_calculation();
+    var ShoulderScore = _ShoulderScore_calculation();//肩のバランス
+    var kendall = _kendall_classification()[1] + _kendall_classification()[2] + _kendall_classification()[3];//姿勢
+    var Hugheight = _Hugheight_calculation();//抱っこの高さ
+    var ArmPitFit = _ArmpitFit_calculation();//脇の開き
+    var Closeness = _Closeness_calculation();//密着
 
     int shoulder_score = 0;
     int backbone_score = 0;
@@ -809,14 +809,16 @@ class _EvaluationState extends State<Evaluation> {
   }
   //アドバイスを返す
   List<String> _advice(){
-    var summraize = _Summraize();
-    var point = _triangular_chart();
     var score = _score();//[0]sumscore [1]shoulder_score [2]backbone_score [3]hugheight_score [4]armpitfit_score [5]closeness_score;
     List<String> advicelist = [];
-    String advice = "";
     int advicecount = 0;
 
+    // ↓ 未使用
+    var summraize = _Summraize();
+    var point = _triangular_chart();
+    String advice = "";
 
+    // アプリで表示されるアドバイス
     List<String> advice_kendall_list
     = ["",
       "全ポイントで外れています。下腹をへこませ、耳たぶ,肩峰,股関節,膝,外くるぶしの5点が一直線に並ぶように抱っこしましょう。",
@@ -952,8 +954,10 @@ class _EvaluationState extends State<Evaluation> {
       }
     }
 
+    // _advice() の際に返す
     return advicelist;
   }
+
   //三角チャート
   List <double> _triangular_chart(){
     List<double> point=[];
@@ -1016,7 +1020,6 @@ class _EvaluationState extends State<Evaluation> {
     else{
       shoulder_point = 4;
     }
-    
 
     //満点三角形→path.moveTo(-25, 55);path.lineTo(-140, 260);path.lineTo(90, 260);
     //計算5段階評価の場合(5→1) hug_height_score +35していく kendall_score1　-28.75 kendallscore2 -16.25していく shoulder_score1 -28.75 shoulder_score2 -16.25していく
@@ -1037,10 +1040,9 @@ class _EvaluationState extends State<Evaluation> {
     point.add(kendall_point);
     point.add(shoulder_point);
 
-
   return point;
 }
-  //ダイアログ表示
+  //ダイアログ表示（未使用）
   _openDialog() {
     
     return showDialog(
@@ -1093,6 +1095,7 @@ class _EvaluationState extends State<Evaluation> {
       },
     );
   }
+
   //複数のスマホで実行できるようにデバイスのサイズを取得するための関数
 List<double> _devicesizeget(){
     List<double> devicesize = [];
@@ -1131,13 +1134,13 @@ Future<void> widgetToImage(wti) async {
   }
 }
 
-
 //Widget build
   @override
 
   Widget build(BuildContext context) {
     //初期状態
     if(count==0){
+      // 前ページから引継いだ内容
       image = widget.path1;
       imagefront = widget.path1;
       imageside = widget.path2;
@@ -1240,6 +1243,7 @@ Future<void> widgetToImage(wti) async {
                 child: InteractiveViewer(
                 child: GestureDetector(
                   onTap: () {
+                    // スクショするための関数
                     widgetToImage(globalKeyfront);
                   },
                   child:Stack(
@@ -1271,6 +1275,7 @@ Future<void> widgetToImage(wti) async {
                   child: InteractiveViewer(
                   child: GestureDetector(
                   onTap: () {
+                    // スクショするための関数
                     widgetToImage(globalKeyside);
                   },
                   // color: Colors.red,
@@ -1340,7 +1345,7 @@ Future<void> widgetToImage(wti) async {
                                   }
                                   if (index == 1){
                                     return RadarChartTitle(
-                                      text: '脊柱',
+                                      text: '重心線',
                                       angle: 0
                                     );
                                   }
@@ -1409,7 +1414,7 @@ Future<void> widgetToImage(wti) async {
                     ),
                     Visibility(visible:tf, 
                     child:Center(
-                    child:Text(_scoretext(_score()),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 28,color: Colors.red)),
+                    child:Text(_scoretext(_score()),style: TextStyle(fontWeight: FontWeight.bold,fontSize: 25,color: Colors.red)),
                     ),
                     ),
         Visibility(visible:badtf, child:
@@ -1438,17 +1443,17 @@ Future<void> widgetToImage(wti) async {
             // 表示エラーの都合上「Column」から「ListView」に変更
             child: ListView(//crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //アドバイス
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("脊柱：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[0],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black54))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("抱っこの高さ：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[1],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black54))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("肩のバランス：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[2],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black54))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("密着：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[3],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black54))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("脇の開き：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black))),visible: advicetf),
-                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[4],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: Colors.black54))),visible: advicetf),
+                //アドバイス（ここで「アドバイス」のFontSizeを変えたりする）
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("立位での重心線：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.black))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[0],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12,color: Colors.black54))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("抱っこの高さ：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.black))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[1],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12,color: Colors.black54))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("肩のバランス：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.black))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[2],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12,color: Colors.black54))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("密着：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.black))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[3],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12,color: Colors.black54))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text("脇の開き：",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,color: Colors.black))),visible: advicetf),
+                Visibility(child: Padding(padding: const EdgeInsets.only(left: 8.0,right: 8.0),child: Text(advicetxt[4],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 12,color: Colors.black54))),visible: advicetf),
               ],
             )
     ),
@@ -1606,8 +1611,8 @@ Future<void> widgetToImage(wti) async {
                   child: ElevatedButton(
                       onPressed: (){
                         setState(() {
+
                           advicetxt = _advice();
-                         
                           button = "advice";
                           imagescore = "assets/null.png";
                           downcolor_1 = Colors.grey;
@@ -1618,6 +1623,7 @@ Future<void> widgetToImage(wti) async {
                           texttf = false;
                           advicetf = true;
                           // _openDialog();
+
                         });
                       },
                       style: ElevatedButton.styleFrom(
@@ -1781,10 +1787,12 @@ class MyPainter extends CustomPainter{
         //backhandの高さテキスト表示(手首の高さ：〇〇％)
         // String backwristtext = "手首の高さ:" + ((double.parse(summraize[3])*100).ceil()).toString() + "%";
         String backwristtext = _symbol(scorelist[5]);
+
         TextSpan backwristSpan = TextSpan(
           style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),  // オリジナルのスタイルを維持
           text: backwristtext,  // 新しいテキストを指定
         );
+
         TextPainter backwrist = new TextPainter(text: backwristSpan, textAlign: TextAlign.left, textDirection: TextDirection.ltr);
         backwrist.layout();
         if(summraize[4]=="Right_wrist"){
@@ -1796,10 +1804,12 @@ class MyPainter extends CustomPainter{
         //backhandの高さテキスト表示(手首の高さ：〇〇％)
         // String hipwristtext = "手首の高さ:" + ((double.parse(summraize[2])*100).ceil()).toString() + "%";
         String hipwristtext = _symbol(scorelist[3]);
+
         TextSpan hipwristSpan = TextSpan(
           style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),  // オリジナルのスタイルを維持
           text: hipwristtext,  // 新しいテキストを指定
         );
+
         TextPainter hipwrist = new TextPainter(text: hipwristSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
         hipwrist.layout();
         if(summraize[4]=="Right_wrist"){
@@ -1821,12 +1831,20 @@ class MyPainter extends CustomPainter{
         paint.strokeWidth = 5;
         canvas.drawCircle(Right_shoulder,15, paint);
         canvas.drawCircle(Left_shoulder,15, paint);
-        //shoulderbalanceテキスト表示(肩のバランス)
+        //shoulderbalanceテキスト表示(肩のバランス)（変更済み）
         String shouldertext = "肩のバランス";
+
+        TextStyle customStyle = TextStyle(
+          fontSize: 10.0,  // テキストサイズを指定
+          color: Colors.white,  // テキストの色を白に設定
+          background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
+        );
+
         TextSpan shoulderSpan = TextSpan(
-          style: span.style,  // オリジナルのスタイルを維持
+          style: customStyle,  // オリジナルのスタイルを維持
           text: shouldertext,  // 新しいテキストを指定
         );
+
         TextPainter shoulderbalance = new TextPainter(text: shoulderSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
         shoulderbalance.layout();
         shoulderbalance.paint(canvas, new Offset(Left_shoulder.dx, (Right_shoulder.dy+Left_shoulder.dy)/2));
@@ -1838,12 +1856,20 @@ class MyPainter extends CustomPainter{
           paint.color = Colors.red.withOpacity(0.5);
           paint.strokeWidth = 5;
           canvas.drawCircle(Right_wrist, 15, paint);
-          //shoulderbalanceテキスト表示(肩のバランス)
+          //shoulderbalanceテキスト表示(肩のバランス)(変更済み)
           String hugheighttext = "抱っこの高さ";
-          TextSpan hugheightSpan = TextSpan(
-            style: span.style,
-            text: hugheighttext,
+
+          TextStyle customStyle = TextStyle(
+            fontSize: 10.0,  // テキストサイズを指定
+            color: Colors.white,  // テキストの色を白に設定
+            background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
           );
+
+          TextSpan  hugheightSpan = TextSpan(
+            style: customStyle,  // オリジナルのスタイルを維持
+            text: hugheighttext,  // 新しいテキストを指定
+          );
+
           TextPainter hugheight = new TextPainter(text: hugheightSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
           hugheight.layout();
           hugheight.paint(canvas, Right_wrist);
@@ -1853,12 +1879,20 @@ class MyPainter extends CustomPainter{
           paint.color = Colors.red.withOpacity(0.5);
           paint.strokeWidth = 5;
           canvas.drawCircle(Left_wrist, 15, paint);
-          //shoulderbalanceテキスト表示(肩のバランス)
+          //shoulderbalanceテキスト表示(肩のバランス)（変更済み）
           String hugheighttext = "抱っこの高さ";
-          TextSpan hugheightSpan = TextSpan(
-            style: span.style,
-            text: hugheighttext,
+
+          TextStyle customStyle = TextStyle(
+            fontSize: 10.0,  // テキストサイズを指定
+            color: Colors.white,  // テキストの色を白に設定
+            background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
           );
+
+          TextSpan  hugheightSpan = TextSpan(
+            style: customStyle,  // オリジナルのスタイルを維持
+            text: hugheighttext,  // 新しいテキストを指定
+          );
+
           TextPainter hugheight = new TextPainter(text: hugheightSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
           hugheight.layout();
           hugheight.paint(canvas, Left_wrist);
@@ -1880,12 +1914,21 @@ class MyPainter extends CustomPainter{
         paint.color = Colors.red.withOpacity(0.7);
         canvas.drawCircle(Offset(Right_shoulder_ideal_x, Right_shoulder_ideal_y),radius, paint);
         canvas.drawCircle(Offset(Left_shoulder_ideal_x, Left_shoulder_ideal_y),radius, paint);
-        //shoulderbalanceテキスト表示(肩のバランス)
+        //shoulderbalanceテキスト表示(肩のバランス)（変更済み）
         String shouldertext = "肩のバランス";
-        TextSpan shoulderSpan = TextSpan(
-          style: span.style,  // オリジナルのスタイルを維持
+
+        TextStyle customStyle = TextStyle(
+          fontSize: 10.0,  // テキストサイズを指定
+          color: Colors.white,  // テキストの色を白に設定
+          background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
+        );
+
+        TextSpan  shoulderSpan = TextSpan(
+          style: customStyle,  // オリジナルのスタイルを維持
           text: shouldertext,  // 新しいテキストを指定
         );
+
+
         TextPainter shoulderbalance = new TextPainter(text: shoulderSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
         shoulderbalance.layout();
         shoulderbalance.paint(canvas, new Offset(Left_shoulder.dx, (Right_shoulder.dy+Left_shoulder.dy)/2));
@@ -1903,12 +1946,20 @@ class MyPainter extends CustomPainter{
             paint.color = Colors.red.withOpacity(0.5);
             canvas.drawLine(Right_elbow,
                 Offset(Right_wrist_ideal_x,Right_wrist_ideal_y), paint);//上記2点をつなげる直線を描画
-            //説明用テキストを描画する
+            //説明用テキストを描画する（変更済み）
             String hugheighttext = "抱っこの高さ";
+
+            TextStyle customStyle = TextStyle(
+              fontSize: 10.0,  // テキストサイズを指定
+              color: Colors.white,  // テキストの色を白に設定
+              background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
+            );
+
             TextSpan hugheightSpan = TextSpan(
-              style: span.style,  // オリジナルのスタイルを維持
+              style: customStyle,  // オリジナルのスタイルを維持
               text: hugheighttext,  // 新しいテキストを指定
             );
+
             TextPainter hugheight = new TextPainter(text: hugheightSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
             hugheight.layout();
             hugheight.paint(canvas,Right_elbow);
@@ -1924,12 +1975,20 @@ class MyPainter extends CustomPainter{
             paint.color = Colors.red.withOpacity(0.5);
             canvas.drawLine(Left_elbow,
                 Offset(Left_wrist_ideal_x,Left_wrist_ideal_y), paint);//上記2点をつなげる直線を描画
-            //説明用テキストを描画する
+            //説明用テキストを描画する(変更済み)
             String hugheighttext = "抱っこの高さ";
+
+            TextStyle customStyle = TextStyle(
+              fontSize: 10.0,  // テキストサイズを指定
+              color: Colors.white,  // テキストの色を白に設定
+              background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
+            );
+
             TextSpan hugheightSpan = TextSpan(
-              style: span.style,  // オリジナルのスタイルを維持
+              style: customStyle,  // オリジナルのスタイルを維持
               text: hugheighttext,  // 新しいテキストを指定
             );
+
             TextPainter hugheight = new TextPainter(text: hugheightSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
             hugheight.layout();
             hugheight.paint(canvas,Left_elbow);
@@ -2067,12 +2126,20 @@ class MyPainter extends CustomPainter{
             Offset(Right_ankle_ideal_x, Right_knee_ideal), paint);
         canvas.drawLine(
             Offset(Right_ankle_ideal_x, Right_knee_ideal), Right_ankle, paint);
-        //理想姿勢テキスト描画表示(姿勢)
+        //理想姿勢テキスト描画表示(姿勢)（変更済み）
         String kendaltext = "理想姿勢";
-        TextSpan kendalSpan = TextSpan(
-          style: span.style, // オリジナルのスタイルを維持
-          text: kendaltext, // 新しいテキストを指定
+
+        TextStyle customStyle = TextStyle(
+          fontSize: 10.0,  // テキストサイズを指定
+          color: Colors.white,  // テキストの色を白に設定
+          background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
         );
+
+        TextSpan kendalSpan = TextSpan(
+          style: customStyle,  // オリジナルのスタイルを維持
+          text: kendaltext,  // 新しいテキストを指定
+        );
+
         TextPainter kendal = new TextPainter(text: kendalSpan,
             textAlign: TextAlign.right,
             textDirection: TextDirection.ltr);
@@ -2096,17 +2163,26 @@ class MyPainter extends CustomPainter{
       // }
 
       //抱っこの高さに異常があるときかつ右手がhiphadの時
+
       if (double.parse(summraize[2]) < 0.5&&summraize[4]=="Right_wrist"){
         //plotする
         paint.color = Colors.red.withOpacity(0.5);
         paint.strokeWidth = 5;
         canvas.drawCircle(Right_wrist, 15, paint);
-        //shoulderbalanceテキスト表示(肩のバランス)
+        //shoulderbalanceテキスト表示(肩のバランス)（変更済み）
         String hugheighttext = "抱っこの高さ";
-        TextSpan hugheightSpan = TextSpan(
-          style: span.style,
-          text: hugheighttext,
+
+        TextStyle customStyle = TextStyle(
+          fontSize: 10.0,  // テキストサイズを指定
+          color: Colors.white,  // テキストの色を白に設定
+          background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
         );
+
+        TextSpan  hugheightSpan = TextSpan(
+          style: customStyle,  // オリジナルのスタイルを維持
+          text: hugheighttext,  // 新しいテキストを指定
+        );
+
         TextPainter hugheight = new TextPainter(text: hugheightSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
         hugheight.layout();
         hugheight.paint(canvas, Right_wrist);
@@ -2132,12 +2208,20 @@ class MyPainter extends CustomPainter{
           Offset(Right_ankle_ideal_x, Right_knee_ideal), paint);
       canvas.drawLine(
           Offset(Right_ankle_ideal_x, Right_knee_ideal), Right_ankle, paint);
-      //理想姿勢テキスト描画表示(姿勢)
+      //理想姿勢テキスト描画表示(姿勢)（アプリ上に反映されるラベル）（ここだけ変更している）
       String kendaltext = "理想姿勢";
+
+      TextStyle customStyle = TextStyle(
+        fontSize: 10.0,  // テキストサイズを指定
+        color: Colors.white,  // テキストの色を白に設定
+        background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
+      );
+
       TextSpan kendalSpan = TextSpan(
-        style: span.style,  // オリジナルのスタイルを維持
+        style: customStyle,  // オリジナルのスタイルを維持
         text: kendaltext,  // 新しいテキストを指定
       );
+
       TextPainter kendal = new TextPainter(text: kendalSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
       kendal.layout();
       kendal.paint(canvas, Right_hip);
@@ -2267,12 +2351,20 @@ class MyPainter extends CustomPainter{
           Offset(Left_ankle_ideal_x, Left_knee_ideal), paint);
       canvas.drawLine(
           Offset(Left_ankle_ideal_x, Left_knee_ideal), Left_ankle, paint);
-      //理想姿勢テキスト描画表示(姿勢)
+      //理想姿勢テキスト描画表示(姿勢)（変更済み）
       String kendaltext = "理想姿勢";
+
+      TextStyle customStyle = TextStyle(
+        fontSize: 10.0,  // テキストサイズを指定
+        color: Colors.white,  // テキストの色を白に設定
+        background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
+      );
+
       TextSpan kendalSpan = TextSpan(
-        style: span.style,  // オリジナルのスタイルを維持
+        style: customStyle,  // オリジナルのスタイルを維持
         text: kendaltext,  // 新しいテキストを指定
       );
+
       TextPainter kendal = new TextPainter(text: kendalSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
       kendal.layout();
       kendal.paint(canvas, Left_hip);
@@ -2285,12 +2377,20 @@ class MyPainter extends CustomPainter{
         paint.color = Colors.red.withOpacity(0.5);
         paint.strokeWidth = 5;
         canvas.drawCircle(Left_shoulder, 15, paint);
-        //shoulderbalanceテキスト表示(肩のバランス)
+        //shoulderbalanceテキスト表示(肩のバランス)（変更済み）
         String shouldertext = "肩のバランス";
-        TextSpan shoulderSpan = TextSpan(
-          style: span.style,
-          text: shouldertext,
+
+        TextStyle customStyle = TextStyle(
+          fontSize: 10.0,  // テキストサイズを指定
+          color: Colors.white,  // テキストの色を白に設定
+          background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
         );
+
+        TextSpan  shoulderSpan = TextSpan(
+          style: customStyle,  // オリジナルのスタイルを維持
+          text: shouldertext,  // 新しいテキストを指定
+        );
+
         TextPainter shoulderbalance = new TextPainter(text: shoulderSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
         shoulderbalance.layout();
         shoulderbalance.paint(canvas, Left_shoulder);
@@ -2302,12 +2402,20 @@ class MyPainter extends CustomPainter{
           paint.color = Colors.red.withOpacity(0.5);
           paint.strokeWidth = 5;
           canvas.drawCircle(Left_wrist, 15, paint);
-          //shoulderbalanceテキスト表示(肩のバランス)
+          //shoulderbalanceテキスト表示(肩のバランス)（変更済み）
           String hugheighttext = "抱っこの高さ";
-          TextSpan hugheightSpan = TextSpan(
-            style: span.style,
-            text: hugheighttext,
+
+          TextStyle customStyle = TextStyle(
+            fontSize: 10.0,  // テキストサイズを指定
+            color: Colors.white,  // テキストの色を白に設定
+            background: Paint()..color = Colors.black.withOpacity(0.5),  // 半透明の背景色を指定
           );
+
+          TextSpan  hugheightSpan = TextSpan(
+            style: customStyle,  // オリジナルのスタイルを維持
+            text: hugheighttext,  // 新しいテキストを指定
+          );
+
           TextPainter hugheight = new TextPainter(text: hugheightSpan, textAlign: TextAlign.right, textDirection: TextDirection.ltr);
           hugheight.layout();
           hugheight.paint(canvas, Left_wrist);
@@ -2327,7 +2435,6 @@ class MyPainter extends CustomPainter{
 class ImagePainter extends CustomPainter{
 
   List<double> point;
-
   ImagePainter(this.point);
 
   @override

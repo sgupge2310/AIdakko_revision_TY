@@ -1,37 +1,180 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'package:gazou/main.dart';
+import 'evaluation.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gazou/inblaze.dart';
-import 'package:gazou/main.dart';
 import 'package:quiver/async.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/pause.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'dart:math' as math;
+import 'package:sensors/sensors.dart';
 
+//撮影準備画面
+class TestScreen extends StatefulWidget {
+  final CameraDescription camera;
 
-// 写真に紐づけるID(6桁)をランダム生成
+  const TestScreen({
+    Key? key,
+    required this.camera,
+  }) : super(key: key);
 
-//final id = Random().nextInt(900000) + 100000;
+  @override
+  _TestScreenState createState() => _TestScreenState();
+}
 
-// 現在の日付を取得
-//DateTime now = DateTime.now();
+class _TestScreenState extends State<TestScreen> {
+  late CameraController _controller;
+  late Future<void> _initializeControllerFuture;
+  int _angle = 0; // デバイスの傾きを保持する変数
+  late StreamSubscription<AccelerometerEvent> _accelerometerSubscription;
+  late DateTime _lastUpdate = DateTime.now();
+  final _audio = AudioCache();
 
-// 年、月、日を取得
-//String year = now.year.toString();
-//String month = now.month.toString();
-//String day = now.day.toString();
-//String hour = now.hour.toString();
-//String minute = now.minute.toString();
-//String second = now.second.toString();
-//String today = year +"_"+ month + "_" + day + "_" + hour + minute + second;
+  @override
+  void initState() {
+    super.initState();
+    _controller = CameraController(
+      widget.camera,
+      ResolutionPreset.medium,
+    );
+    _initializeControllerFuture = _controller.initialize();
 
-// ID作成
-//final id = today;
+    //音声指示
+    _audio.play('prepare.mp3');
+
+    // 加速度計のデータを1秒ごとに監視し、角度を計算して更新する
+    _accelerometerSubscription = accelerometerEvents.listen((AccelerometerEvent event) {
+      if (DateTime.now().difference(_lastUpdate) > Duration(seconds: 1)) {
+        _lastUpdate = DateTime.now();
+        setState(() {
+          _angle = _calculateAngle(event);
+        });
+      }
+    });
+  }
+
+  // 加速度計から角度を計算する関数
+  int _calculateAngle(AccelerometerEvent event) {
+    double ax = event.x;
+    double ay = event.y;
+    double az = event.z;
+    double norm = math.sqrt(ax * ax + ay * ay + az * az);
+    double angle = (math.acos(az / norm) * 180.0 / math.pi) - 90.0;
+    return angle.abs().round(); // 角度を整数に丸める
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _accelerometerSubscription.cancel(); // リスナーの解除
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('撮影準備画面'),
+      ),
+      body: FutureBuilder<void>(
+        future: _initializeControllerFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            // カメラの初期化が完了したらカメラ画面を表示
+            return Stack(
+              children: <Widget>[
+                CameraPreview(_controller),
+                Positioned(
+                  bottom: 16.0,
+                  left: 16.0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        'デバイスの傾き: $_angle°',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          shadows: <Shadow>[
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '傾きを0°に近づけてください',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          shadows: <Shadow>[
+                            Shadow(
+                              offset: Offset(1.0, 1.0),
+                              blurRadius: 3.0,
+                              color: Colors.black,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            '【撮影推奨環境】\nカメラと被写体の距離：2m\nカメラと地面の距離　：1m',
+            style: TextStyle(fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8),
+          SizedBox(
+            width: 160,
+            height: 80,
+            child: FloatingActionButton(
+              onPressed: () async {
+                try {
+                  await _initializeControllerFuture;
+                  // カメラが準備できたら TakePictureScreen に遷移
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TakePictureScreen(camera: widget.camera),
+                    ),
+                  );
+                } catch (e) {
+                  print('カメラの起動に失敗しました: $e');
+                }
+              },
+              child: Text(
+                '撮影開始',
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+}
 
 //get0
-/// 写真撮影画面
+/// 写真撮影画面（junbi.dartからここに移動）
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen({
     Key? key,
@@ -41,7 +184,7 @@ class TakePictureScreen extends StatefulWidget {
   final CameraDescription camera;
 
   @override
-  TakePictureScreenState createState() => TakePictureScreenState();
+  TakePictureScreenState createState() => TakePictureScreenState(); // 移動
 }
 
 class TakePictureScreenState extends State<TakePictureScreen> {
@@ -77,6 +220,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
       await _saveImageToGallery(imagePath);
       await Navigator.push(
                     context,
+                    // inblaze.dart の BlazePage1 に移動
                     MaterialPageRoute(builder: (context) => BlazePage1(imagePath:image.path,camera:widget.camera),
               )
                     );
@@ -182,6 +326,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
                     dispose();
                     Navigator.push(
                     context,
+                    // pause.dart の Pause1Page に移動
                     MaterialPageRoute(builder: (context) => Pause1Page(title:"中断中",camera:widget.camera),
               )
                     );
@@ -261,6 +406,7 @@ class TakePictureScreen1State extends State<TakePictureScreen1> {
       await _saveImageToGallery(imagePath);
       await Navigator.push(
                     context,
+                    // inblaze.dart の BlazePage1 に移動
                     MaterialPageRoute(builder: (context) => BlazePage1(imagePath:image.path,camera:widget.camera),
               )
                     );
@@ -352,6 +498,7 @@ class TakePictureScreen1State extends State<TakePictureScreen1> {
                     dispose();
                     Navigator.push(
                     context,
+                        // pause.dart の Pause1Page に移動
                     MaterialPageRoute(builder: (context) => Pause1Page(title:"中断中",camera:widget.camera),
               )
                     );
@@ -439,6 +586,7 @@ class TakePictureScreen1p1State extends State<TakePictureScreen1p1> {
       await _saveImageToGallery(imagePath);
       await Navigator.push(
                     context,
+                    // inblaze.dart の BlazePage1 に移動
                     MaterialPageRoute(builder: (context) => BlazePage1(imagePath:image.path,camera:widget.camera),
               )
                     );
@@ -523,6 +671,7 @@ class TakePictureScreen1p1State extends State<TakePictureScreen1p1> {
                     dispose();
                     Navigator.push(
                     context,
+                        // pause.dart の Pause1Page に移動
                     MaterialPageRoute(builder: (context) => Pause1Page(title:"中断中",camera:widget.camera),
               )
                     );
