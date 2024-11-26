@@ -20,8 +20,8 @@ import 'inget.dart';
 import 'outget.dart';
 
 //評価結果を返す
-class Evaluation extends StatefulWidget {
- Evaluation({Key? key,required this.path1, required this.path2, required this.path3,required this.offsets1,required this.offsets2,required this.offsets3,required this.inoutcamera})
+class EvaluationYoko extends StatefulWidget {
+ EvaluationYoko({Key? key,required this.path1, required this.path2, required this.path3,required this.offsets1,required this.offsets2,required this.offsets3,required this.inoutcamera})
       : super(key: key);
   final String path1;
   final String path2;
@@ -33,7 +33,7 @@ class Evaluation extends StatefulWidget {
   String inoutcamera;
 
  @override
-  State<Evaluation> createState() => _EvaluationState();
+  State<EvaluationYoko> createState() => _EvaluationState();
 }
 
 //firebase (現在はほぼ使用していない)
@@ -160,7 +160,7 @@ Future<void> uploadImage(String front,String left,String right,List<Offset> fron
 // ここまで firebase のコード
 
 //5項目の計算用関数
-class _EvaluationState extends State<Evaluation> {
+class _EvaluationState extends State<EvaluationYoko> {
   String kendall = "評価結果を出す";
   String score = "姿勢スコア：計算中";
   String imagefront = "";
@@ -821,42 +821,42 @@ class _EvaluationState extends State<Evaluation> {
     // アプリで表示されるアドバイス
     List<String> advice_kendall_list
     = ["",
-      "全ポイントで外れています。下腹をへこませ、耳たぶ,肩峰,股関節,膝,外くるぶしの5点が一直線に並ぶように抱っこしましょう。",
-      "3ヵ所外れています。下腹をへこませ、耳たぶ,肩峰,股関節,膝,外くるぶしの5点が一直線に並ぶように抱っこしましょう。",
-      "2ケ所外れています。下腹をへこませ、耳たぶ,肩峰,股関節,膝,外くるぶしの5点が一直線に並ぶように抱っこしましょう。",
-      "1ヶ所外れています。下腹をへこませ、耳たぶ,肩峰,股関節,膝,外くるぶしの5点が一直線に並ぶように意識しましょう。",
-      "耳たぶ,肩峰,股関節,膝,外くるぶしの5点が一直線に並ぶ理想的な姿勢です。",
+      "全ポイントで外れています。耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶように姿勢を正し、抱っこしましょう。",
+      "3ヵ所外れています。耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶように姿勢を正し、抱っこしましょう。",
+      "2ケ所外れています。耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶように姿勢を正し、抱っこしましょう。",
+      "1ヶ所外れています。耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶように意識しましょう。",
+      "耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶ理想的な姿勢で抱っこできています。",
     ];
     List<String> advice_hugheight_list
     = ["",
-      "非常に低いため抱っこする人の肩に赤ちゃんの顔を乗せ、ほっぺにキスできる高さをこころがけましょう。",
-      "かなり低いため抱っこする人の肩に赤ちゃんの顔を乗せ、ほっぺにキスできる高さをこころがけましょう。",
-      "やや低いため抱っこする人の肩に赤ちゃんの顔を乗せ、ほっぺにキスできる高さをこころがけましょう。",
-      "ほぼ適切です。抱っこする人の肩に赤ちゃんの顔を乗せ、ほっぺにキスできる高さをこころがけましょう。",
+      "非常に低いため、胸の高さで抱っこしましょう。",
+      "かなり低いため、胸の高さで抱っこしましょう。",
+      "やや低いため、胸の高さで抱っこしましょう。",
+      "ほぼ適切です。これからも胸の高さを意識して抱っこしましょう。",
       "適切です。",
     ];
     List<String> advice_shoulderbalance_list
     = ["",
-      "バランスが非常に崩れています。背筋を伸ばし、肩の力を抜き体全体で抱っこしましょう。",
-      "バランスが崩れています。背筋を伸ばし、肩の力を抜き体全体で抱っこしましょう。",
-      "バランスにやや差があります。背筋を伸ばし、肩の力を抜き体全体で抱きましょう。",
-      "バランスはほぼとれています。腕や肩の力を抜きましょう。",
+      "バランスが非常に崩れています。背筋を伸ばし、左右の肩や骨盤のバランスを整え、体全体で抱っこしましょう。",
+      "バランスが崩れています。背筋を伸ばし、左右の肩や骨盤のバランスを整え、体全体で抱っこしましょう。",
+      "バランスにやや差があります。背筋を伸ばし、肩や腕の力を抜き体全体で抱きましょう。",
+      "バランスはほぼとれています。肩や腕の力を抜いて抱っこましょう。",
       "バランスが非常に取れています。",
     ];
     List<String> advice_armpitfit_list
     = ["",
-      "非常に開いています。赤ちゃんの顔を肩に乗せ、肘～手首の間と体を使って抱っこしましょう。",
-      "かなり開いています。赤ちゃんの顔を肩に乗せ、肘～手首の間と体を使って抱っこしましょう。",
-      "やや開いています。肩の力を抜き、赤ちゃんを深く抱いてみましょう。",
+      "非常に開いているか締まっています。赤ちゃんの頭と首・足を肘の内側で支え、体に腕や手を添えて抱っこしましょう。",
+      "かなり開いているか締まっています。赤ちゃんの頭と頸・足を肘の内側で支え、体に腕や手を添えて抱っこしましょう。",
+      "やや開いています。肩の力を抜き、赤ちゃんを丸く深く抱いてみましょう。",
       "ほぼ適切です。赤ちゃんをもう少し深く抱いてみましょう。",
       "適切です。",
     ];
     List<String> advice_closeness_list
     = ["",
-      "非常に離れています。赤ちゃんと自分の体を密着させましょう。",
-      "かなり離れています。赤ちゃんと自分の体を密着させましょう。",
-      "やや離れています。赤ちゃんが寄りかかるように抱っこしましょう。",
-      "ほぼ適切です。",
+      "非常に離れています。赤ちゃんを抱きよせ体を密着させましょう。",
+      "かなり離れています。赤ちゃんを抱きよせ体を密着させましょう。",
+      "やや離れています。赤ちゃんの頭や体が寄りかかるように抱っこしましょう。",
+      "ほぼ適切です。もう少しだけ赤ちゃんを抱きよせましょう。",
       "適切です。",
     ];
 
@@ -1225,7 +1225,7 @@ Future<void> widgetToImage(wti) async {
             ],
 
             // actions:[IconButton(onPressed: (){Navigator.popUntil(context, (Route<dynamic> route) => route.isFirst);}, icon:Icon(Icons.home,color: icon_colors,))],
-            title:  Text("縦：評価結果",style:TextStyle(color: appbar_text_colors)),
+            title:  Text("横：評価結果",style:TextStyle(color: appbar_text_colors)),
             backgroundColor: appbar_colors),
       ),
       body:Stack(

@@ -9,6 +9,7 @@ import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:gazou/outget.dart';
 import 'package:gazou/evaluation.dart';
+import 'package:gazou/evaluationYoko.dart';
 
 //git追加テスト
 class OutBlazePage1 extends StatefulWidget {
@@ -505,6 +506,7 @@ class _OutBlazePage3State extends State<OutBlazePage3> {
     seigyo();
   }
 
+  /*
   Future<void> seigyo() async {
     //姿勢がきちんと取れているとき結果画面へ
     if (hantei && hantei2 == true) {
@@ -529,6 +531,63 @@ class _OutBlazePage3State extends State<OutBlazePage3> {
           ));
     }
   }
+ */
+
+  Future<void> seigyo() async {
+    // 姿勢がきちんと取れているとき結果画面へ
+    if (hantei && hantei2 == true) {
+      // 終了を知らせる音声を流す
+      _audio.play('end.mp3');
+      // ポップアップで抱き方を選択させる
+      final selectedStyle = await showDialog<String>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('抱き方を選択'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('tate'), // 縦抱きを選択
+                child: Text('縦抱き'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop('yoko'), // 横抱きを選択
+                child: Text('横抱き'),
+              ),
+            ],
+          );
+        },
+      );
+
+      // 選択に応じて遷移するページを決定
+      if (selectedStyle != null) {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => selectedStyle == 'tate'
+                ? Evaluation(
+                path1: widget.path1,path2: widget.path2,path3:widget.imagePath,offsets1:widget.offsets1,offsets2:widget.offsets2,offsets3:offsets,inoutcamera:"out"
+            )
+                : EvaluationYoko(
+              path1: widget.path1,path2: widget.path2,path3:widget.imagePath,offsets1:widget.offsets1,offsets2:widget.offsets2,offsets3:offsets,inoutcamera:"out"
+            ),
+          ),
+        );
+      }
+    } else {
+      // 問題があるとき再撮影へ
+      _audio.play('keihou.mp3');
+      await Future.delayed(Duration(seconds: 4));
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TakePictureScreen3(
+              camera: widget.camera,path1: widget.path1,path2: widget.path2,offsets1:widget.offsets1, offsets2:widget.offsets2
+          ),
+        ),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
