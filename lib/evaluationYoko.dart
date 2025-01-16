@@ -605,13 +605,13 @@ class _EvaluationState extends State<EvaluationYoko> {
     int closeness_score = 0;
 
 //ここから閾値設定してます
-    //姿勢の数値を出力しています．
+    //姿勢（重心線）の数値を出力しています．
     print("姿勢の数値"+kendall.toString());
 
-    if(kendall <= 14.065){
-      backbone_score = 19;
+    if(kendall <= 14.765){
+      backbone_score =19;
     }
-    else if(14.065 < kendall && kendall <= 21.335){
+    else if(14.765 < kendall && kendall <= 21.335){
       backbone_score = 15;
     }
     else if(21.335 < kendall && kendall <= 24.83){
@@ -628,19 +628,19 @@ class _EvaluationState extends State<EvaluationYoko> {
 
     //抱っこの高さの数値化を出力しています
     print("抱っこの高さ"+double.parse(Hugheight[0]).toString());
-    if(0.55 < double.parse(Hugheight[0])){
+    if(0.65 < double.parse(Hugheight[0]) && double.parse(Hugheight[0]) < 0.90){
       hugheight_score = 20;
     }
-    else if(0.485 < double.parse(Hugheight[0]) && double.parse(Hugheight[0]) <= 0.55){
+    else if(0.55 < double.parse(Hugheight[0]) && double.parse(Hugheight[0]) <= 0.65 || 0.90 <= double.parse(Hugheight[0])){
       hugheight_score = 15;
     }
-    else if(0.475 < double.parse(Hugheight[0]) && double.parse(Hugheight[0]) <= 0.485){
+    else if(0.45 < double.parse(Hugheight[0]) && double.parse(Hugheight[0]) <= 0.55){
       hugheight_score = 10;
     }
-    else if(0.425 > double.parse(Hugheight[0]) && double.parse(Hugheight[0]) <= 0.475){
+    else if(0.30 < double.parse(Hugheight[0]) && double.parse(Hugheight[0]) <= 0.45){
       hugheight_score = 5;
     }
-    else if(double.parse(Hugheight[0]) <= 0.425){
+    else if(double.parse(Hugheight[0]) <= 0.30){
       hugheight_score = 0;
     }
     //確認用
@@ -668,19 +668,19 @@ class _EvaluationState extends State<EvaluationYoko> {
 
     //ArmPitFitは脇の開き具合の定量化した変数です．
     //以下で閾値を定めて5段階評価しています．
-    if(4.19 < ArmPitFit){
+    if(3.0 < ArmPitFit){
       armpitfit_score = 20;
     }
-    else if(1.625 < ArmPitFit && ArmPitFit <= 4.19){
+    else if(1.6 < ArmPitFit && ArmPitFit <= 3.0){
       armpitfit_score = 15;
     }
-    else if(1.315 < ArmPitFit && ArmPitFit <= 1.625){
+    else if(1.3 < ArmPitFit && ArmPitFit <= 1.6){
       armpitfit_score = 10;
     }
-    else if(1.11 < ArmPitFit && ArmPitFit <= 1.315){
+    else if(1.0 < ArmPitFit && ArmPitFit <= 1.3){
       armpitfit_score = 5;
     }
-    else if (ArmPitFit < 1.11){
+    else if (ArmPitFit < 1.0){
       armpitfit_score = 0;
     }
     print("脇の開き具合"+ArmPitFit.toString());
@@ -690,20 +690,19 @@ class _EvaluationState extends State<EvaluationYoko> {
     //Closenessは密着具合の定量化した変数です．
     //以下で閾値を定めて5段階評価しています．
     print("密着具合"+Closeness.toString());
-    if(Closeness <= 58.38){
+    if(Closeness <= 110){
       closeness_score = 20;
     }
-    else if(58.38 < Closeness && Closeness <= 86.5){
-
+    else if(110 < Closeness && Closeness <= 120){
       closeness_score = 15;
     }
-    else if(86.5 < Closeness && Closeness <= 144.5){
+    else if(120 < Closeness && Closeness <= 125){
       closeness_score = 10;
     }
-    else if(144.5 < Closeness && Closeness <= 148){
+    else if(125 < Closeness && Closeness <= 130){
       closeness_score = 5;
     }
-    else if(148 < Closeness){
+    else if(130 < Closeness){
       closeness_score += 0;
     }
     //確認用
@@ -819,45 +818,50 @@ class _EvaluationState extends State<EvaluationYoko> {
     String advice = "";
 
     // アプリで表示されるアドバイス
+    // 重心線
     List<String> advice_kendall_list
     = ["",
-      "全ポイントで外れています。耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶように姿勢を正し、抱っこしましょう。",
-      "3ヵ所外れています。耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶように姿勢を正し、抱っこしましょう。",
-      "2ケ所外れています。耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶように姿勢を正し、抱っこしましょう。",
-      "1ヶ所外れています。耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶように意識しましょう。",
-      "耳たぶ,肩,股関節,膝,外くるぶしの5点が一直線に並ぶ理想的な姿勢で抱っこできています。",
+      "全ポイントで外れています。耳たぶ,肩,股関節,膝,外くるぶし（足首の外）が一直線に並ぶように抱っこしましょう。",
+      "3ヵ所外れています。耳たぶ,肩,股関節,膝,外くるぶし（足首の外）が一直線に並ぶように抱っこしましょう。",
+      "2ケ所外れています。耳たぶ,肩,股関節,膝,外くるぶし（足首の外）が一直線に並ぶように抱っこしましょう。",
+      "1ヶ所外れています。耳たぶ,肩,股関節,膝,外くるぶし（足首の外）が一直線に並ぶように抱っこしましょう。",
+      "理想的な姿勢で抱っこできています。",
     ];
+    // 抱っこの高さ
     List<String> advice_hugheight_list
     = ["",
-      "非常に低いため、胸の高さで抱っこしましょう。",
-      "かなり低いため、胸の高さで抱っこしましょう。",
-      "やや低いため、胸の高さで抱っこしましょう。",
-      "ほぼ適切です。これからも胸の高さを意識して抱っこしましょう。",
-      "適切です。",
+      "抱っこの高さが適切ではありません。胸の近く、負担の少ない高さで抱っこしましょう。",
+      "抱っこの高さが適切ではありません。胸の近く、負担の少ない高さで抱っこしましょう。",
+      "抱っこの高さが適切ではありません。胸の近く、負担の少ない高さで抱っこしましょう。",
+      "適切な高さで、抱っこできています。",
+      "適切な高さで、抱っこできています。",
     ];
+    // 肩のバランス
     List<String> advice_shoulderbalance_list
     = ["",
-      "バランスが非常に崩れています。背筋を伸ばし、左右の肩や骨盤のバランスを整え、体全体で抱っこしましょう。",
-      "バランスが崩れています。背筋を伸ばし、左右の肩や骨盤のバランスを整え、体全体で抱っこしましょう。",
-      "バランスにやや差があります。背筋を伸ばし、肩や腕の力を抜き体全体で抱きましょう。",
-      "バランスはほぼとれています。肩や腕の力を抜いて抱っこましょう。",
-      "バランスが非常に取れています。",
+      "肩の左右バランスが崩れています。背筋を伸ばし、肩や腕の力を抜き、体全体を使って抱っこしましょう。",
+      "肩の左右バランスが崩れています。背筋を伸ばし、肩や腕の力を抜き、体全体を使って抱っこしましょう。",
+      "肩の左右バランスにやや差があります。背筋を伸ばし、肩の力を抜いて抱っこしましょう。",
+      "バランスよく抱っこできています。",
+      "バランスよく抱っこできています。",
     ];
+    // 脇の開き
     List<String> advice_armpitfit_list
     = ["",
-      "非常に開いているか締まっています。赤ちゃんの頭と首・足を肘の内側で支え、体に腕や手を添えて抱っこしましょう。",
-      "かなり開いているか締まっています。赤ちゃんの頭と頸・足を肘の内側で支え、体に腕や手を添えて抱っこしましょう。",
-      "やや開いています。肩の力を抜き、赤ちゃんを丸く深く抱いてみましょう。",
-      "ほぼ適切です。赤ちゃんをもう少し深く抱いてみましょう。",
-      "適切です。",
+      "脇のしめすぎ、または開きすぎの可能性があります。脇の力を抜き、手だけでなく、腕や体全体を使って抱っこしましょう。",
+      "脇のしめすぎ、または開きすぎの可能性があります。脇の力を抜き、手だけでなく、腕や体全体を使って抱っこしましょう。",
+      "脇のしめすぎ、または開きすぎの可能性があります。脇の力を抜き、手だけでなく、腕や体全体を使って抱っこしましょう。",
+      "適切な脇の開き（しめすぎず、開きすぎず）で抱っこしています。",
+      "適切な脇の開き（しめすぎず、開きすぎず）で抱っこしています。",
     ];
+    // 密着
     List<String> advice_closeness_list
     = ["",
-      "非常に離れています。赤ちゃんを抱きよせ体を密着させましょう。",
-      "かなり離れています。赤ちゃんを抱きよせ体を密着させましょう。",
-      "やや離れています。赤ちゃんの頭や体が寄りかかるように抱っこしましょう。",
-      "ほぼ適切です。もう少しだけ赤ちゃんを抱きよせましょう。",
-      "適切です。",
+      "赤ちゃんの体が離れています。体がくっつくように抱きよせましょう。",
+      "赤ちゃんの体が離れています。体がくっつくように抱きよせましょう。",
+      "赤ちゃんの体が離れています。体がくっつくように抱きよせましょう。",
+      "赤ちゃんを上手に密着させて抱っこできています。",
+      "赤ちゃんを上手に密着させて抱っこできています。",
     ];
 
     //ケンダル分類指摘出力
